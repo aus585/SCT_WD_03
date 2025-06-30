@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Tic Tac Toe</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ==== custom css code ==== -->
+    <style>
+      /* Apply box-sizing to all elements and set default font */
+      * {
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      /* Body styling with centered layout and gradient background */
+      body {
+        background: radial-gradient(circle at top left, #2c3e50, #000);
+        color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      /* Main title */
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 0.5em;
+      }
+
+      /* Scoreboard container */
+      .score-board {
+        margin-bottom: 1em;
+      }
+
+      /* Score text inside scoreboard */
+      .score-board span {
+        margin: 0 15px;
+        font-size: 1.1em;
+      }
+
+      /* Controls section (input + buttons) */
+      .controls {
+        margin-bottom: 20px;
+      }
+
+      /* Inputs and buttons style */
+      .controls input,
+      .controls button {
+        padding: 10px 14px;
+        margin: 5px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+      }
+
+      /* Input field style */
+      .controls input {
+        background: #1f1f1f;
+        color: #fff;
+      }
+
+      /* Buttons style */
+      .controls button {
+        background: #ffcc00;
+        color: #000;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      /* Button hover effect */
+      .controls button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 12px #ffd700b3;
+      }
+
+      /* Game board grid (3x3 layout) */
+      .board {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      /* Each cell in the board */
+      .cell {
+        background: rgba(255, 255, 255, 0.05);
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5em;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: inset 0 0 10px #00000088;
+      }
+
+      /* Cell hover effect */
+      .cell:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.05);
+      }
+
+      /* Line animation when player wins */
+      .win-line {
+        position: absolute;
+        height: 6px;
+        background: #00ffcc;
+        transform-origin: left center;
+        animation: drawLine 0.5s ease forwards;
+        border-radius: 4px;
+        box-shadow: 0 0 10px #00ffccaa;
+        z-index: 10;
+      }
+
+      /* Win line drawing animation */
+      @keyframes drawLine {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      /* Popup for game result (win/draw) */
+      .popup {
+        position: absolute;
+        top: 20%;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15);
+        text-align: center;
+        animation: fadeIn 0.4s ease forwards;
+      }
+
+      /* Fade-in animation for popup */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Confetti particle style */
+      .confetti {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: confettiFall 2.5s ease-out forwards;
+      }
+
+      /* Confetti falling animation */
+      @keyframes confettiFall {
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(600px) rotate(720deg);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ==== custom html code ==== -->
+    <!-- Game Title -->
+    <h1>Tic Tac Toe</h1>
+
+    <!-- Scoreboard displaying player names and scores -->
+    <div class="score-board">
+      <span id="scoreX">💧 <span id="nameX">Player X</span>: 0</span>
+      <span id="scoreO">🔥 <span id="nameO">Player O</span>: 0</span>
+    </div>
+
+    <!-- Controls for entering player names and selecting game mode -->
+    <div class="controls">
+      <input type="text" id="playerX" placeholder="Player X Name" />
+      <input type="text" id="playerO" placeholder="Player O Name" />
+      <button onclick="startGame('1')">1 Player</button>
+      <!-- Single-player mode -->
+      <button onclick="startGame('2')">2 Players</button>
+      <!-- Two-player mode -->
+    </div>
+
+    <!-- Game board grid container (filled dynamically with JS) -->
+    <div class="board" id="board"></div>
+
+    <!-- Popup shown when someone wins or game ends -->
+    <div id="popup" class="popup" style="display: none">
+      <h2 id="winnerMessage"></h2>
+      <!-- Displays winner or draw message -->
+      <button onclick="resetGame()">Continue</button>
+      <!-- Restart game -->
+      <button onclick="exitGame()">Exit</button>
+      <!-- End game -->
+    </div>
+
+    <!-- ==== custom javascript code ==== -->
+    <script>
+      // Get references to elements
+      const boardEl = document.getElementById("board");
+      const popup = document.getElementById("popup");
+      const winnerMessage = document.getElementById("winnerMessage");
+
+      // Game state variables
+      let board = Array(9).fill("");
+      let currentPlayer = "X";
+      let isGameActive = false;
+      let gameMode = "2";
+      let scores = { X: 0, O: 0 };
+
+      // Draw the Tic Tac Toe board
+      function drawBoard() {
+        boardEl.innerHTML = "";
+        board.forEach((val, idx) => {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.innerText = val;
+          cell.onclick = () => handleClick(idx);
+          boardEl.appendChild(cell);
+        });
+      }
+
+      // Start a new game (1 or 2 player)
+      function startGame(mode) {
+        gameMode = mode;
+        board = Array(9).fill("");
+        currentPlayer = "X";
+        isGameActive = true;
+
+        // Set player names
+        const playerXName =
+          document.getElementById("playerX").value || "Player X";
+        const playerOName =
+          mode === "1"
+            ? "Computer 💻"
+            : document.getElementById("playerO").value || "Player O";
+
+        document.getElementById("nameX").innerText = playerXName;
+        document.getElementById("nameO").innerText = playerOName;
+
+        drawBoard();
+      }
+
+      // Handle player move
+      function handleClick(index) {
+        if (!isGameActive || board[index]) return;
+
+        board[index] = currentPlayer;
+        drawBoard();
+
+        // Check win or draw
+        if (checkWin(currentPlayer)) return endGame(currentPlayer);
+        if (board.every((v) => v)) return endGame("Draw");
+
+        // Switch player
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+        // If 1-player mode and it's computer's turn
+        if (gameMode === "1" && currentPlayer === "O")
+          setTimeout(computerMove, 500);
+      }
+
+      // Computer's move logic
+      function computerMove() {
+        let bestMove = -1;
+
+        // Try to win or block player
+        for (let i = 0; i < board.length; i++) {
+          if (!board[i]) {
+            board[i] = "O";
+            if (checkWin("O")) {
+              board[i] = "";
+              bestMove = i;
+              break;
+            }
+            board[i] = "X";
+            if (checkWin("X")) {
+              board[i] = "";
+              bestMove = i;
+              break;
+            }
+            board[i] = "";
+          }
+        }
+
+        // Pick random if no strategic move found
+        if (bestMove === -1) {
+          let empty = board
+            .map((v, i) => (v === "" ? i : null))
+            .filter((v) => v !== null);
+          bestMove = empty[Math.floor(Math.random() * empty.length)];
+        }
+
+        board[bestMove] = "O";
+        drawBoard();
+
+        if (checkWin("O")) return endGame("O");
+        if (board.every((v) => v)) return endGame("Draw");
+
+        currentPlayer = "X";
+      }
+
+      // Check if given player has won
+      function checkWin(player) {
+        const winPatterns = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8], // rows
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8], // columns
+          [0, 4, 8],
+          [2, 4, 6], // diagonals
+        ];
+
+        return winPatterns.some((pattern) => {
+          if (pattern.every((i) => board[i] === player)) {
+            drawWinLine(pattern); // Draw win line if matched
+            return true;
+          }
+          return false;
+        });
+      }
+
+      // Draw line across winning pattern
+      function drawWinLine(pattern) {
+        const cellEls = document.querySelectorAll(".cell");
+        const boardRect = boardEl.getBoundingClientRect();
+        const rect1 = cellEls[pattern[0]].getBoundingClientRect();
+        const rect3 = cellEls[pattern[2]].getBoundingClientRect();
+
+        // Get center positions of start and end cells
+        const x1 = rect1.left + rect1.width / 2 - boardRect.left;
+        const y1 = rect1.top + rect1.height / 2 - boardRect.top;
+        const x2 = rect3.left + rect3.width / 2 - boardRect.left;
+        const y2 = rect3.top + rect3.height / 2 - boardRect.top;
+
+        // Create and position the win line
+        const line = document.createElement("div");
+        line.className = "win-line";
+        line.style.left = `${x1}px`;
+        line.style.top = `${y1}px`;
+        line.style.width = `${Math.hypot(x2 - x1, y2 - y1)}px`;
+        line.style.transform = `rotate(${
+          (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
+        }deg)`;
+
+        boardEl.appendChild(line);
+      }
+
+      // End game and show popup
+      function endGame(winner) {
+        isGameActive = false;
+
+        if (winner !== "Draw") {
+          scores[winner]++; // Update score
+
+          // Update score display
+          document.getElementById("scoreX").innerHTML = `💧 <span id="nameX">${
+            document.getElementById("nameX").innerText
+          }</span>: ${scores.X}`;
+          document.getElementById("scoreO").innerHTML = `🔥 <span id="nameO">${
+            document.getElementById("nameO").innerText
+          }</span>: ${scores.O}`;
+
+          // Show winner message
+          winnerMessage.innerHTML = `${winner === "X" ? "💧" : "🔥"} <strong>${
+            winner === "X"
+              ? document.getElementById("nameX").innerText
+              : document.getElementById("nameO").innerText
+          }</strong> Wins! 🎉`;
+          spawnConfetti(100);
+        } else {
+          winnerMessage.innerHTML = `🤝 It's a Draw!`;
+        }
+
+        popup.style.display = "block"; // Show result popup
+      }
+
+      // Reset game board and state
+      function resetGame() {
+        popup.style.display = "none";
+        document.querySelectorAll(".confetti").forEach((el) => el.remove());
+        document.querySelectorAll(".win-line").forEach((el) => el.remove());
+        startGame(gameMode);
+      }
+
+      // Reload the page to exit the game
+      function exitGame() {
+        location.reload();
+      }
+
+      // Confetti animation on win
+      function spawnConfetti(count) {
+        for (let i = 0; i < count; i++) {
+          const confetti = document.createElement("div");
+          confetti.className = "confetti";
+          confetti.style.left = `${Math.random() * 100}%`;
+          confetti.style.top = `-10px`;
+          confetti.style.backgroundColor = ["#ffcc00", "#00bcd4", "#ff4081"][
+            Math.floor(Math.random() * 3)
+          ];
+          confetti.style.zIndex = 20;
+
+          document.body.appendChild(confetti);
+          setTimeout(() => confetti.remove(), 3000); // Remove after 3 seconds
+        }
+      }
+    </script>
+  </body>
+</html>
