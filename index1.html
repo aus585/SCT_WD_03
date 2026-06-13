@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modern Tic Tac Toe</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <h1>Tic Tac Toe</h1>
+
+  <div class="score-board">
+    <span id="scoreX">💧 <span id="nameX">Player X</span>: 0</span>
+    <span id="scoreO">🔥 <span id="nameO">Player O</span>: 0</span>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="playerX" placeholder="Player X Name" />
+    <input type="text" id="playerO" placeholder="Player O Name" />
+    <button onclick="startGame('1')">1 Player</button>
+    <button onclick="startGame('2')">2 Players</button>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div id="popup" class="popup" style="display:none;">
+    <h2 id="winnerMessage"></h2>
+    <button onclick="resetGame()">Continue</button>
+    <button onclick="exitGame()">Exit</button>
+  </div>
+
+  <!-- JS -->
+  <script src="script.js"></script>
+
+</body>
+</html>
