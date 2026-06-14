@@ -14,27 +14,38 @@
 
 <body>
 
-  <h1>Tic Tac Toe</h1>
+      <!-- Game Title -->
+    <h1>Tic Tac Toe</h1>
 
-  <div class="score-board">
-    <span id="scoreX">💧 <span id="nameX">Player X</span>: 0</span>
-    <span id="scoreO">🔥 <span id="nameO">Player O</span>: 0</span>
-  </div>
+    <!-- Scoreboard displaying player names and scores -->
+    <div class="score-board">
+      <span id="scoreX">💧 <span id="nameX">Player X</span>: 0</span>
+      <span id="scoreO">🔥 <span id="nameO">Player O</span>: 0</span>
+    </div>
 
-  <div class="controls">
-    <input type="text" id="playerX" placeholder="Player X Name" />
-    <input type="text" id="playerO" placeholder="Player O Name" />
-    <button onclick="startGame('1')">1 Player</button>
-    <button onclick="startGame('2')">2 Players</button>
-  </div>
+    <!-- Controls for entering player names and selecting game mode -->
+    <div class="controls">
+      <input type="text" id="playerX" placeholder="Player X Name" />
+      <input type="text" id="playerO" placeholder="Player O Name" />
+      <button onclick="startGame('1')">1 Player</button>
+      <!-- Single-player mode -->
+      <button onclick="startGame('2')">2 Players</button>
+      <!-- Two-player mode -->
+    </div>
 
-  <div class="board" id="board"></div>
+    <!-- Game board grid container (filled dynamically with JS) -->
+    <div class="board" id="board"></div>
 
-  <div id="popup" class="popup" style="display:none;">
-    <h2 id="winnerMessage"></h2>
-    <button onclick="resetGame()">Continue</button>
-    <button onclick="exitGame()">Exit</button>
-  </div>
+    <!-- Popup shown when someone wins or game ends -->
+    <div id="popup" class="popup" style="display: none">
+      <h2 id="winnerMessage"></h2>
+      <!-- Displays winner or draw message -->
+      <button onclick="resetGame()">Continue</button>
+      <!-- Restart game -->
+      <button onclick="exitGame()">Exit</button>
+      <!-- End game -->
+    </div>
+
 
   <!-- JS -->
   <script src="script.js"></script>
