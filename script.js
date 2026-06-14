@@ -138,9 +138,12 @@ function drawWinLine(pattern) {
   // Create and position the win line
   const line = document.createElement("div");
   line.className = "win-line";
-  line.style.left = `${x1}px`;
-  line.style.top = `${y1}px`;
-  line.style.width = `${Math.hypot(x2 - x1, y2 - y1) - 30}px`;
+const angle = Math.atan2(y2 - y1, x2 - x1);
+const shorten = 15; // pixels removed from each end
+
+line.style.left = `${x1 + Math.cos(angle) * shorten}px`;
+line.style.top = `${y1 + Math.sin(angle) * shorten}px`;
+line.style.width = `${Math.hypot(x2 - x1, y2 - y1) - shorten * 2}px`;
   line.style.transform = `rotate(${
     (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
   }deg)`;
